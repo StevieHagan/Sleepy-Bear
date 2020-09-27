@@ -9,6 +9,7 @@ public class BearMover : MonoBehaviour
     [SerializeField] float arrivalDistance = 0.5f;
     [Tooltip("READ ONLY - Indicates if Bear is currently on a path or roaming loose.")]
     [SerializeField] bool isOnPath = false;
+    [SerializeField] States state = States.walking;
 
     BearAi ai;
     Waypoint currentDestination;
@@ -27,14 +28,26 @@ public class BearMover : MonoBehaviour
     }
     void Update()
     {
-        if (currentDestination != null)
+        switch(state)
         {
-            ProcessPathMovement();
+            case States.walking:
+                if (currentDestination != null)
+                {
+                    ProcessPathMovement();
+                }
+                else
+                {
+                    ProcessOffPathMovement();
+                }
+                break;
+            case States.dead:
+                break;
         }
-        else
-        {
-            ProcessOffPathMovement();
-        }
+    }
+
+    public void Die()
+    {
+        state = States.dead;
     }
 
     private void ProcessPathMovement()
@@ -45,7 +58,6 @@ public class BearMover : MonoBehaviour
 
         if (Vector3.Distance(transform.position, currentDestination.transform.position) <= arrivalDistance)
         {
-            print("close");
             currentDestination = ai.GetNextWaypoint(currentDestination, arrivalDistance, isOnPath);
         }
     }
@@ -62,5 +74,5 @@ public class BearMover : MonoBehaviour
         }
     }
 
-        }
+}
     
