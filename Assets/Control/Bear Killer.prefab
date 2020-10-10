@@ -14,11 +14,11 @@ GameObject:
   - component: {fileID: 4361256608032719397}
   - component: {fileID: 4361256608032719392}
   m_Layer: 0
-  m_Name: NavMesh Extender
+  m_Name: Bear Killer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 3
-  m_StaticEditorFlags: 4294967295
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4361256608032719396
 Transform:

@@ -1,4 +1,4 @@
 ﻿public enum States
 {
-    walking, turning, idle, dead
+    walking, turning, idle, dead, bouncing
 }

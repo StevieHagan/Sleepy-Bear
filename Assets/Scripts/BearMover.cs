@@ -9,26 +9,30 @@ public class BearMover : MonoBehaviour
     [SerializeField] float arrivalDistance = 0.5f;
     [Tooltip("Time taken to turn after meeting an obstacle, in seconds")]
     [SerializeField] float turnSpeed = 2f;
+    [Tooltip("Minimum amount of time a bounce can last for. Prevents going immediately back to walk state due to low velocity")]
+    [SerializeField] float minBounceTime = 0.5f;
     [Tooltip("READ ONLY - Indicates if Bear is currently on a path or roaming loose.")]
     [SerializeField] bool isOnPath = false;
     [SerializeField] States state = States.walking;
 
     BearAi ai;
+    BearWalker walker;
     Waypoint currentDestination;
-    NavMeshAgent navAgent;
     Rigidbody rb;
     CapsuleCollider mainCollider;
+    Vector3 forceToApplyNextFixedUpdate;
 
     float timer = 0f;
     int deflectorLayerMask;
     float startAngle = 0; //for turning when encountering an obsticle
-    float targetAngle = 0; 
+    float targetAngle = 0;
+    bool applyForceNextFixedUpdate = false;
 
     void Start()
     {
         ai = GetComponent<BearAi>();
+        walker = GetComponent<BearWalker>();
         mainCollider = GetComponent<CapsuleCollider>();
-        navAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         deflectorLayerMask = 1 << 8;
 
@@ -50,7 +54,13 @@ public class BearMover : MonoBehaviour
                 CheckForDeflector();
                 break;
             case States.turning:
-                ProcessTurn();
+                if(!walker.isTurning())
+                {
+                    ChangeState(States.walking);
+                }
+                break;
+            case States.bouncing:
+                ProcessBounce();
                 break;
             case States.dead:
                 break;
@@ -62,8 +72,7 @@ public class BearMover : MonoBehaviour
         if (newState == States.walking)
         {
             currentDestination = null;
-            rb.isKinematic = true;
-            navAgent.enabled = true;
+            walker.enabled = true;
         }
 
         state = newState;
@@ -72,19 +81,26 @@ public class BearMover : MonoBehaviour
     public void Die()
     {
         ChangeState(States.dead);
+        walker.enabled = false;
+        rb.freezeRotation = false;
+    }
 
-        float speed = navAgent.speed;
-        rb.isKinematic = false;
-        navAgent.enabled = false;
-        rb.velocity = transform.forward * speed * 2;
+   public void StartBounce(Vector3 bounceForce)
+    {
+        //prevent a second bounce being called if one has just started
+        if (state == States.bouncing && Time.time - timer < minBounceTime) return;
 
+        state = States.bouncing;
+        walker.enabled = false;
+        timer = Time.time;
+        rb.AddForce(bounceForce, ForceMode.Impulse);
     }
 
     private void ProcessPathMovement()
     {
         isOnPath = true;
 
-        navAgent.SetDestination(currentDestination.transform.position);
+        walker.SetDestination(currentDestination.transform.position, 1);
 
         if (Vector3.Distance(transform.position, currentDestination.transform.position) <= arrivalDistance)
         {
@@ -95,7 +111,7 @@ public class BearMover : MonoBehaviour
     private void ProcessOffPathMovement()
     {
         isOnPath = false;
-        navAgent.SetDestination(transform.position + transform.forward * 2);
+        //walker.SetDestination(transform.position + transform.forward * 2);
 
         if (Time.time - timer > 1) //if more than a second has passed since Bear last looked for a waypoint
         {
@@ -108,40 +124,27 @@ public class BearMover : MonoBehaviour
     {
         RaycastHit hit;
 
-        Debug.DrawRay(transform.position + Vector3.up, transform.forward * 3);
+        //Debug.DrawRay(transform.position + Vector3.up, transform.forward * 3);
         if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 3.0f, deflectorLayerMask))
         {
             print(hit.normal);
-            StartTurn(ai.GetTurnAngle(hit, isOnPath));
+            Deflect(ai.GetTurnAngle(hit, isOnPath));
         }
     }
 
-    private void StartTurn(float targetAngle)
+    private void Deflect(float targetAngle)
     { //Turning when an obsticle is encountered.
 
         ChangeState(States.turning);
-        navAgent.enabled = false;
-        startAngle = transform.rotation.eulerAngles.y;
-        this.targetAngle = targetAngle;
-        timer = Time.time;
-
-        ProcessTurn();
+        walker.SetTargetAngle(targetAngle);
     }
 
-    private void ProcessTurn()
+    private void ProcessBounce()
     {
-        if (Mathf.Abs(Mathf.DeltaAngle(transform.rotation.eulerAngles.y, targetAngle)) > 0.1)
-        {
+        //If minimum bounce time has not passed or Bear has not yet come to rest, do nothing
+        if (Time.time - timer < minBounceTime || Vector3.SqrMagnitude(rb.velocity) > 0.1f) return;
 
-            float interimAngle = startAngle + ((targetAngle - startAngle) * 0.5f *
-                                 (Mathf.Sin(((((Time.time - timer) / turnSpeed) -0.5f) * 180) * Mathf.Deg2Rad) + 1));
-
-            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, interimAngle, transform.rotation.eulerAngles.z);
-        }
-        else
-        {
-            ChangeState(States.walking);
-        }
+        ChangeState(States.walking);
     }
 }
     

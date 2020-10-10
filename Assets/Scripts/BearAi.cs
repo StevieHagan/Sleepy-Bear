@@ -57,7 +57,6 @@ public class BearAi : MonoBehaviour
 
         //create a HashSet of waypoints which are within Bear's detection range
         HashSet<Waypoint> detectibleWaypoints = new HashSet<Waypoint>();
-
         foreach (Waypoint waypoint in waypoints)
         {   //check vertical and total distnce first
             if (Mathf.Abs(transform.position.y - waypoint.transform.position.y) < verticalLimit
@@ -133,8 +132,7 @@ public class BearAi : MonoBehaviour
 
             foreach (Waypoint waypoint in manualWaypoints)
             {
-                Vector3 targetDir = waypoint.transform.position - transform.position;
-                float targetAngle = Vector3.Angle(targetDir, transform.forward);
+                float targetAngle = Vector3.Angle(waypoint.transform.position - transform.position, transform.forward);
 
                 if (honeyPotWaypointsOnly && !waypoint.HasHoneyPot()) continue;
 
