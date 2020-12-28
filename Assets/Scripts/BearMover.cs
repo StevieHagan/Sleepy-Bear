@@ -7,8 +7,6 @@ public class BearMover : MonoBehaviour
 {
     [Tooltip("Sets the distance under which Bear will stop walking towards the current waypoint and look for the next one")]
     [SerializeField] float arrivalDistance = 0.5f;
-    [Tooltip("Time taken to turn after meeting an obstacle, in seconds")]
-    [SerializeField] float turnSpeed = 2f;
     [Tooltip("Minimum amount of time a bounce can last for. Prevents going immediately back to walk state due to low velocity")]
     [SerializeField] float minBounceTime = 0.5f;
     [Tooltip("READ ONLY - Indicates if Bear is currently on a path or roaming loose.")]
@@ -20,13 +18,9 @@ public class BearMover : MonoBehaviour
     Waypoint currentDestination;
     Rigidbody rb;
     CapsuleCollider mainCollider;
-    Vector3 forceToApplyNextFixedUpdate;
 
     float timer = 0f;
     int deflectorLayerMask;
-    float startAngle = 0; //for turning when encountering an obsticle
-    float targetAngle = 0;
-    bool applyForceNextFixedUpdate = false;
 
     void Start()
     {
@@ -34,11 +28,11 @@ public class BearMover : MonoBehaviour
         walker = GetComponent<BearWalker>();
         mainCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
-        deflectorLayerMask = 1 << 8;
+        deflectorLayerMask = 256;
 
         currentDestination = ai.GetNextWaypoint(currentDestination, arrivalDistance, isOnPath);
     }
-    void Update()
+    void FixedUpdate()
     {
         switch(state)
         {
@@ -54,7 +48,7 @@ public class BearMover : MonoBehaviour
                 CheckForDeflector();
                 break;
             case States.turning:
-                if(!walker.isTurning())
+                if(!walker.IsTurning())
                 {
                     ChangeState(States.walking);
                 }
@@ -124,10 +118,9 @@ public class BearMover : MonoBehaviour
     {
         RaycastHit hit;
 
-        //Debug.DrawRay(transform.position + Vector3.up, transform.forward * 3);
+        Debug.DrawRay(transform.position + Vector3.up, transform.forward * 3);
         if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 3.0f, deflectorLayerMask))
         {
-            print(hit.normal);
             Deflect(ai.GetTurnAngle(hit, isOnPath));
         }
     }
