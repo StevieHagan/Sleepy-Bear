@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BearAi : MonoBehaviour
+public class ZombieAI : MonoBehaviour
 {
     [Tooltip("Vertical limit to waypoint detection, to stop Bear detecting waypoints directly above or below")]
     [SerializeField] float verticalLimit = 3f;

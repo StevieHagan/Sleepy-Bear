@@ -9,12 +9,12 @@ public class Bouncer : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag != "Bear") return;
+        if (other.tag != "Zombie") return;
 
         Vector3 upwardVector = Vector3.up * upwardForce;
         Vector3 forwardVector = transform.forward * forwardForce;
         print(upwardForce);
-        other.GetComponent<BearMover>().StartBounce(upwardVector + forwardVector);
+        other.GetComponent<ZombieMover>().StartBounce(upwardVector + forwardVector);
     }
 
 }

@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BearMover : MonoBehaviour
+public class ZombieMover : MonoBehaviour
 {
     [Tooltip("Sets the distance under which Bear will stop walking towards the current waypoint and look for the next one")]
     [SerializeField] float arrivalDistance = 0.5f;
     [Tooltip("Minimum amount of time a bounce can last for. Prevents going immediately back to walk state due to low velocity")]
     [SerializeField] float minBounceTime = 0.5f;
+    [Tooltip("Distance to look ahead for a deflector.")]
+    [SerializeField] float deflectionDistance = 1.0f;
     [Tooltip("READ ONLY - Indicates if Bear is currently on a path or roaming loose.")]
     [SerializeField] bool isOnPath = false;
     [SerializeField] States state = States.walking;
 
-    BearAi ai;
-    BearWalker walker;
+    ZombieAI ai;
+    ZombieWalker walker;
     Waypoint currentDestination;
     Rigidbody rb;
     CapsuleCollider mainCollider;
@@ -24,8 +26,8 @@ public class BearMover : MonoBehaviour
 
     void Start()
     {
-        ai = GetComponent<BearAi>();
-        walker = GetComponent<BearWalker>();
+        ai = GetComponent<ZombieAI>();
+        walker = GetComponent<ZombieWalker>();
         mainCollider = GetComponent<CapsuleCollider>();
         rb = GetComponent<Rigidbody>();
         deflectorLayerMask = 256;
@@ -118,8 +120,8 @@ public class BearMover : MonoBehaviour
     {
         RaycastHit hit;
 
-        Debug.DrawRay(transform.position + Vector3.up, transform.forward * 3);
-        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, 3.0f, deflectorLayerMask))
+        Debug.DrawRay(transform.position + Vector3.up, transform.forward * deflectionDistance);
+        if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, deflectionDistance, deflectorLayerMask))
         {
             Deflect(ai.GetTurnAngle(hit, isOnPath));
         }

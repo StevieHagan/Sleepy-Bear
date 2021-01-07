@@ -271,7 +271,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrivalDistance: 0.5
-  turnSpeed: 2
   minBounceTime: 0.5
   isOnPath: 1
   state: 0
@@ -288,11 +287,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSpeed: 1
-  targetAngle: 0
   acceleration: 5
   cancelDestinationDistance: 0.5
   turnSpeed: 2
-  currentSpeed: 0
 --- !u!114 &1414092725591563294
 MonoBehaviour:
   m_ObjectHideFlags: 0

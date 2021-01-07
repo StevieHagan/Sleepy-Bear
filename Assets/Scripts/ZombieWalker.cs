@@ -4,7 +4,7 @@ using System.Dynamic;
 using TreeEditor;
 using UnityEngine;
 
-public class BearWalker : MonoBehaviour
+public class ZombieWalker : MonoBehaviour
 {
 
     [SerializeField] float defaultSpeed = 1f;

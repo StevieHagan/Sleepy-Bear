@@ -3,6 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BearDeflector : MonoBehaviour
+public class ZombieDeflector : MonoBehaviour
 {
 }

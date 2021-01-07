@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4361256608032719397}
   - component: {fileID: 4361256608032719392}
   m_Layer: 0
-  m_Name: Bear Killer
+  m_Name: Zombie Killer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 3
